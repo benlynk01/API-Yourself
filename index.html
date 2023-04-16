@@ -1,0 +1,132 @@
+<!-- @format -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Wanted People</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+         }
+         .container {
+           max-width: 800px;
+           margin: 0 auto;
+           padding: 20px;
+           background-color: #fff;
+           box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          }
+        h1 {
+          text-align: center;
+         margin-bottom: 20px;
+         }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #3e8e41;
+        }
+        .person {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #eee;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .person h3 {
+            margin-top: 0;
+        }
+        .person p {
+            margin-bottom: 10px;
+        }
+        .person img {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+        }
+        .person a {
+            display: block;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+        <h1>FBI's Most Wanted</h1>
+        <form id="search-form">
+            <label for="search">Search by name:</label>
+            <input type="text" id="search" name="search"/>
+            <button type="submit">Search</button>
+        </form>
+        <div id="results"></div>
+    </div>
+    <script>
+        const baseUrl = "https://api.fbi.gov/wanted/v1/list";
+        const searchForm = document.querySelector("#search-form");
+        const resultsContainer = document.querySelector("#results");
+
+        const createResult = (result) => {
+            const {title, description, url} = result;
+            const resultElem = document.createElement("div");
+            resultElem.classList.add("result");
+            const titleElem = document.createElement("h2");
+            titleElem.innerHTML = title;
+            resultElem.appendChild(titleElem);
+            const descElem = document.createElement("p");
+            descElem.innerHTML = description;
+            resultElem.appendChild(descElem);
+            const linkElem = document.createElement("a");
+            linkElem.href = url;
+            linkElem.target = "_blank";
+            linkElem.innerHTML = "View Details";
+            resultElem.appendChild(linkElem);
+            return resultElem;
+        };
+
+        const displayResults = (results) => {
+            resultsContainer.innerHTML = "";
+            if (results.length === 0) {
+            const noResultElem = document.createElement("div");
+            noResultElem.innerHTML = "No results found.";
+            resultsContainer.appendChild(noResultElem);
+            } else {
+            results.forEach((result) => {
+                const resultElem = createResult(result);
+                resultsContainer.appendChild(resultElem);
+            });
+            }
+        };
+
+        const searchFbiList = async (searchValue) => {
+            try {
+            const response = await fetch(`${baseUrl}?title=${searchValue}`);
+            const data = await response.json();
+            const results = data.items || [];
+            displayResults(results);
+            } catch (error) {
+            console.error(error);
+            }
+        };
+
+        searchForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const searchValue = document.querySelector("#search").value;
+            searchFbiList(searchValue);
+    });
+    </script>
+  </body>
+</html>
